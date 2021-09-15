@@ -1,7 +1,7 @@
 {
   "name": "git-changelog-generator",
-  "version": "0.1.0",
-  "private": true,
+  "version": "1.0.0",
+  "private": false,
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
@@ -9,6 +9,10 @@
   },
   "dependencies": {
     "core-js": "^3.6.5",
+    "libmime": "^5.0.0",
+    "parse-diff": "^0.8.1",
+    "sass": "^1.41.0",
+    "sass-loader": "^10",
     "vue": "^2.6.11"
   },
   "devDependencies": {

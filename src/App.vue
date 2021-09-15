@@ -1,29 +1,44 @@
 <template>
   <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js + TypeScript App"/>
+    <ChangelogGenerator />
   </div>
 </template>
 
 <script lang="ts">
 import Vue from 'vue';
-import HelloWorld from './components/HelloWorld.vue';
+import ChangelogGenerator from './components/ChangelogGenerator.vue';
 
 export default Vue.extend({
   name: 'App',
   components: {
-    HelloWorld
+    ChangelogGenerator
   }
 });
 </script>
 
-<style>
+<style lang="scss">
+@import url('https://rsms.me/inter/inter.css');
+html { font-family: 'Inter', sans-serif; }
+@supports (font-variation-settings: normal) {
+  html { font-family: 'Inter var', sans-serif; }
+}
+:root {
+  --color-primary: #0064fe;
+}
+* {
+  box-sizing: border-box;
+}
+html {
+  overflow: hidden;
+}
+body {
+  margin: 0;
+  color: #081f37;
+  background: #eeeeee;
+  accent-color: var(--color-primary);
+}
 #app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
 }
 </style>
