@@ -39,3 +39,7 @@ index 864e092..03eccbb 100644
 --
 2.33.0
 `;
+
+export const utf8Headers = `MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit`;

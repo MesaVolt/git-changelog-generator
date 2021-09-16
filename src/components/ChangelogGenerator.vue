@@ -99,7 +99,7 @@ import parse from 'parse-diff';
 import libmime from 'libmime';
 import showdown from 'showdown';
 import {ChangelogEntry, Commit} from '@/types';
-import {samplePatch} from '@/helper/content';
+import {samplePatch, utf8Headers} from '@/helper/content';
 
 enum Step {
   AskForDiff = 1,
@@ -152,6 +152,16 @@ export default Vue.extend({
     newEntry: newEntryFactory(),
   }),
   methods: {
+    /**
+     * Some patch strings (either author name, or commit name) are utf-8 encoded,
+     * and start with "=?UTF-8?q?".
+     */
+    decodeUtf8String(string: string): string {
+      if (string.indexOf('=?UTF-8?') === 0) {
+        string = libmime.decodeWords(string);
+      }
+      return string;
+    },
     parseDiff() {
       // Get a list of commits from this diff
       // Each block looks like this:
@@ -165,8 +175,12 @@ export default Vue.extend({
       // ---
       // [full diff]
 
+      // UTF-8 encoding headers: remove them
+      let diff = this.diff;
+      diff = diff.split(utf8Headers).join('');
+
       try {
-        const rows = this.diff.split("\n");
+        const rows = diff.split("\n");
         const textCommits = [];
 
         // Group diff into blocks
@@ -200,11 +214,8 @@ export default Vue.extend({
           if (!commitUserMatch) {
             throw new Error(`Could not parse second row "${rows[1]}"`);
           }
-          let commitUser = commitUserMatch[1];
-          if (commitUser.indexOf('=?UTF-8?') === 0) {
-            commitUser = libmime.decodeWords(commitUser);
-          }
-          let commitUserEmail = commitUserMatch[2];
+          const commitUser = this.decodeUtf8String(commitUserMatch[1]);
+          const commitUserEmail = commitUserMatch[2];
 
           // Fourth row is main commit message
           const messageMatch = /^Subject: \[PATCH(?: \d+\/\d+)?\] (.+)$/.exec(rows[3]);
@@ -232,6 +243,8 @@ export default Vue.extend({
 
             messageMore.push(rows[i]);
           }
+
+          message = this.decodeUtf8String(message);
 
           // Parse the rest: lines added / removed
           const diff = parse(rows.slice(lastCommitMessageRow).join("\n"));
