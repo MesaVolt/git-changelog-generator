@@ -59,15 +59,26 @@
           </div>
         </div>
 
-        <div class="card with-footer changelog">
-          <div class="card-header">
-            <h2 class="card-title">Changelog</h2>
+        <div class="sidebar">
+          <div class="card changelog-preview">
+            <div class="card-header">
+              <h2 class="card-title">Preview</h2>
+            </div>
+            <div class="card-body">
+              <div class="changelog-as-html markdown-html" v-html="changelogAsHTML"></div>
+            </div>
           </div>
 
-          <textarea readonly ref="changelogInput" v-model="changelog"></textarea>
-
-          <div class="card-footer">
-            <button type="button" @click="copy">Copy to clipboard</button>
+          <div class="card changelog-markdown">
+            <div class="card-header">
+              <h2 class="card-title">Markdown</h2>
+            </div>
+            <div class="card-body">
+              <textarea readonly ref="changelogInput" v-model="changelogAsMarkdown"></textarea>
+            </div>
+            <div class="card-footer">
+              <button type="button" @click="copy">Copy to clipboard</button>
+            </div>
           </div>
         </div>
 
@@ -86,6 +97,7 @@
 import Vue from 'vue';
 import parse from 'parse-diff';
 import libmime from 'libmime';
+import showdown from 'showdown';
 import {ChangelogEntry, Commit} from '@/types';
 import {samplePatch} from '@/helper/content';
 
@@ -98,6 +110,33 @@ const newEntryFactory = () => ({
   text: '' as string,
   commits: [] as Commit[],
 })
+
+const converter = new showdown.Converter({
+  extensions: [
+    {
+      type: 'lang',
+      regex: /\b([a-f0-9]{7})\b/g,
+      replace: '<span class="hash">$1</span>'
+    },
+    {
+      type: 'output',
+      filter: (text: string) => {
+        // Detect "<code class="diff language-diff">" blocks
+        // Replace lines starting with -, and ones starting with +
+        const el = document.createElement('div');
+        el.innerHTML = text;
+
+        for (const code of el.querySelectorAll('.diff')) {
+          code.innerHTML = code.innerHTML
+            .replace(/(-.+)/g, '<span class="diff-deleted">$1</span>')
+            .replace(/(\+.+)/g, '<span class="diff-added">$1</span>');
+        }
+
+        return el.innerHTML;
+      }
+    }
+  ]
+});
 
 export default Vue.extend({
   name: 'ChangelogGenerator',
@@ -270,7 +309,7 @@ export default Vue.extend({
   computed: {
     Step: () => Step,
 
-    changelog(): string {
+    changelogAsMarkdown(): string {
       const rows = [
         '**Changelog**'
       ];
@@ -327,6 +366,10 @@ export default Vue.extend({
       );
 
       return rows.join('\n');
+    },
+    changelogAsHTML(): string {
+      const markdown = this.changelogAsMarkdown as string;
+      return converter.makeHtml(markdown);
     },
     samplePatch: () => samplePatch,
   }
@@ -470,15 +513,17 @@ textarea {
   .card-body {
     border-radius: 0 0 4px 4px;
     flex-grow: 1;
+
+    &:not(:last-child) {
+      border-radius: 0;
+    }
+  }
+  .card-body + .card-body {
+    border-top: 1px solid rgba(#000, 0.1);
   }
   .card-footer {
     border-top-width: 1px;
     border-radius: 0 0 4px 4px;
-  }
-  &.with-footer {
-    .card-body {
-      border-radius: 0;
-    }
   }
 }
 
@@ -517,6 +562,7 @@ textarea {
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     white-space: pre;
+    font-size: 12px;
   }
   textarea {
     width: 100%;
@@ -600,13 +646,36 @@ textarea {
     }
   }
 
-  .changelog {
+  .sidebar {
     display: flex;
+    flex-direction: column;
     margin-left: 15px;
     width: 40%;
+  }
+
+  .changelog-preview {
+    display: flex;
+    margin-bottom: 15px;
+    height: 60%;
 
     textarea {
       width: 100%;
+    }
+
+    .card-body {
+      overflow-y: auto;
+    }
+    .changelog-as-html {
+      padding: 10px;
+    }
+  }
+
+  .changelog-markdown {
+    display: flex;
+    flex-grow: 1;
+
+    .card-body {
+      display: flex;
     }
 
     .card-footer button {

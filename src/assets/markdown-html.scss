@@ -1,0 +1,55 @@
+/**
+ * Markdown HTML
+ * Inspired by GitHub's implementation
+ */
+
+.markdown-html {
+  font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji";
+  font-size: 14px;
+  line-height: 1.5;
+  word-wrap: break-word;
+  color: rgb(36, 41, 47);
+
+  p {
+    margin-bottom: 12px;
+    margin-top: 0;
+  }
+
+  a {
+    color: rgb(9, 105, 218);
+    text-decoration: none;
+  }
+
+  pre {
+    padding: 16px;
+    overflow: auto;
+    font-size: 85%;
+    line-height: 1.45;
+    background-color: rgb(246, 248, 250);
+    border-radius: 6px;
+  }
+
+  .hash, code, pre {
+    font-family: ui-monospace,SFMono-Regular,SF Mono,Menlo,Consolas,Liberation Mono,monospace;
+  }
+
+  strong {
+    font-weight: 600;
+  }
+
+  .hash {
+    color: rgb(9, 105, 218);
+    padding: .2em .4em;
+    margin: 0;
+    font-size: 85%;
+    background-color: rgba(175, 184, 193, 0.2);
+    border-radius: 6px;
+  }
+
+  .diff-added {
+    color: #22863a;
+  }
+  .diff-deleted {
+    color: #e5534b;
+  }
+}
