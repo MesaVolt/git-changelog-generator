@@ -165,95 +165,101 @@ export default Vue.extend({
       // ---
       // [full diff]
 
-      const rows = this.diff.split("\n");
-      const textCommits = [];
+      try {
+        const rows = this.diff.split("\n");
+        const textCommits = [];
 
-      // Group diff into blocks
-      let lastCommitRows = [];
-      for (const row of rows) {
-        const firstRowMatch = /^From ([a-f0-9]+)/.exec(row);
-        if (firstRowMatch) {
-          // That's a new block
-          if (lastCommitRows.length) {
-            textCommits.push(lastCommitRows);
+        // Group diff into blocks
+        let lastCommitRows = [];
+        for (const row of rows) {
+          const firstRowMatch = /^From ([a-f0-9]+)/.exec(row);
+          if (firstRowMatch) {
+            // That's a new block
+            if (lastCommitRows.length) {
+              textCommits.push(lastCommitRows);
+            }
+            lastCommitRows = [];
           }
-          lastCommitRows = [];
+          lastCommitRows.push(row);
         }
-        lastCommitRows.push(row);
-      }
-      if (lastCommitRows.length) {
-        textCommits.push(lastCommitRows);
-      }
+        if (lastCommitRows.length) {
+          textCommits.push(lastCommitRows);
+        }
 
-      // Parse each block
-      this.commits = textCommits.map((rows: string[]): Commit => {
-        // First row is commit hash
-        const commitHashMatch = /^From ([a-f0-9]+)/.exec(rows[0]);
-        if (!commitHashMatch) {
-          throw new Error(`Could not parse first row "${rows[0]}"`);
-        }
-        const commitHash = commitHashMatch[1];
-
-        // Second row is git user name & email
-        const commitUserMatch = /^From: (.+) <([\S]+)>/.exec(rows[1]);
-        if (!commitUserMatch) {
-          throw new Error(`Could not parse second row "${rows[1]}"`);
-        }
-        let commitUser = commitUserMatch[1];
-        if (commitUser.indexOf('=?UTF-8?') === 0) {
-          commitUser = libmime.decodeWords(commitUser);
-        }
-        let commitUserEmail = commitUserMatch[2];
-
-        // Fourth row is main commit message
-        const messageMatch = /^Subject: \[PATCH(?: \d+\/\d+)?\] (.+)$/.exec(rows[3]);
-        if (!messageMatch) {
-          throw new Error(`Could not parse fourth row "${rows[3]}"`);
-        }
-        let message = messageMatch[1];
-
-        // All the following lines not beginning with --- and not empty are additional commit rows
-        let messageMore = [];
-        let lastCommitMessageRow = 0;
-        for (let i = 4; i<rows.length; i++) {
-          if (rows[i].indexOf('---') === 0) {
-            lastCommitMessageRow = i+1;
-            break;
+        // Parse each block
+        this.commits = textCommits.map((rows: string[]): Commit => {
+          // First row is commit hash
+          const commitHashMatch = /^From ([a-f0-9]+)/.exec(rows[0]);
+          if (!commitHashMatch) {
+            throw new Error(`Could not parse first row "${rows[0]}"`);
           }
-          if (!rows[i].length) {
-            continue;
+          const commitHash = commitHashMatch[1];
+
+          // Second row is git user name & email
+          const commitUserMatch = /^From: (.+) <([\S]+)>/.exec(rows[1]);
+          if (!commitUserMatch) {
+            throw new Error(`Could not parse second row "${rows[1]}"`);
           }
-          // Treat first "messageMore" row as a continuation of commit message if it starts with a space
-          if (messageMore.length === 0 && rows[i].indexOf(' ') === 0) {
-            message += rows[i];
-            continue;
+          let commitUser = commitUserMatch[1];
+          if (commitUser.indexOf('=?UTF-8?') === 0) {
+            commitUser = libmime.decodeWords(commitUser);
+          }
+          let commitUserEmail = commitUserMatch[2];
+
+          // Fourth row is main commit message
+          const messageMatch = /^Subject: \[PATCH(?: \d+\/\d+)?\] (.+)$/.exec(rows[3]);
+          if (!messageMatch) {
+            throw new Error(`Could not parse fourth row "${rows[3]}"`);
+          }
+          let message = messageMatch[1];
+
+          // All the following lines not beginning with --- and not empty are additional commit rows
+          let messageMore = [];
+          let lastCommitMessageRow = 0;
+          for (let i = 4; i < rows.length; i++) {
+            if (rows[i].indexOf('---') === 0) {
+              lastCommitMessageRow = i + 1;
+              break;
+            }
+            if (!rows[i].length) {
+              continue;
+            }
+            // Treat first "messageMore" row as a continuation of commit message if it starts with a space
+            if (messageMore.length === 0 && rows[i].indexOf(' ') === 0) {
+              message += rows[i];
+              continue;
+            }
+
+            messageMore.push(rows[i]);
           }
 
-          messageMore.push(rows[i]);
-        }
-
-        // Parse the rest: lines added / removed
-        const diff = parse(rows.slice(lastCommitMessageRow).join("\n"));
-        const files = diff.length;
-        let additions = 0,
+          // Parse the rest: lines added / removed
+          const diff = parse(rows.slice(lastCommitMessageRow).join("\n"));
+          const files = diff.length;
+          let additions = 0,
             deletions = 0;
-        for (const file of diff) {
-          additions += file.additions;
-          deletions += file.deletions;
-        }
+          for (const file of diff) {
+            additions += file.additions;
+            deletions += file.deletions;
+          }
 
-        return {
-          message,
-          messageMore: messageMore.join("\n"),
-          hash: commitHash.substr(0, 7),
-          username: commitUser,
-          email: commitUserEmail,
-          files,
-          additions,
-          deletions,
-          added: false,
-        };
-      });
+          return {
+            message,
+            messageMore: messageMore.join("\n"),
+            hash: commitHash.substr(0, 7),
+            username: commitUser,
+            email: commitUserEmail,
+            files,
+            additions,
+            deletions,
+            added: false,
+          };
+        });
+      } catch (e) {
+        alert('Could not parse specified patch. If you think this is a mistake, please open an issue: https://github.com/MesaVolt/git-changelog-generator/issues');
+        this.commits = [];
+        return;
+      }
 
       this.filesChanged = this.commits.reduce((a, commit) => a + commit.files, 0);
       this.additions = this.commits.reduce((a, commit) => a + commit.additions, 0);
