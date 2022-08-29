@@ -18,9 +18,9 @@ export default Vue.extend({
 
 <style lang="scss">
 @import url('https://rsms.me/inter/inter.css');
-html { font-family: 'Inter', sans-serif; }
+html, button, input { font-family: 'Inter', sans-serif; }
 @supports (font-variation-settings: normal) {
-  html { font-family: 'Inter var', sans-serif; }
+  html, button, input { font-family: 'Inter var', sans-serif; }
 }
 :root {
   --color-primary: #0064fe;
