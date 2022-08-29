@@ -11,6 +11,7 @@
   "dependencies": {
     "core-js": "^3.6.5",
     "libmime": "^5.0.0",
+    "mimemessage": "^1.0.5",
     "parse-diff": "^0.8.1",
     "sass": "^1.41.0",
     "sass-loader": "^10",

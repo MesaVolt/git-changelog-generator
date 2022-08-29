@@ -1,3 +1,5 @@
+import libmime from 'libmime';
+
 export const samplePatch = `From 691ec486bc9f69669a00cf1920ea8a3b03974e78 Mon Sep 17 00:00:00 2001
 From: Harvey Specter <hspecter@pearson-hardman.com>
 Date: Tue, 14 Sep 2021 15:16:41 +0200
@@ -43,3 +45,14 @@ index 864e092..03eccbb 100644
 export const utf8Headers = `MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit`;
+
+/**
+ * Some patch strings (either author name, or commit name) are utf-8 encoded,
+ * and start with "=?UTF-8?q?".
+ */
+export const decodeUtf8String = (string: string): string => {
+  if (string.indexOf('=?UTF-8?') === 0) {
+    string = libmime.decodeWords(string);
+  }
+  return string;
+}
