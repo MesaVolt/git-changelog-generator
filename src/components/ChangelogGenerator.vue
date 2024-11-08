@@ -57,6 +57,10 @@
               </span>
             </div>
           </div>
+
+          <div class="card-footer">
+            <button type="button" @click="copy">Copy to clipboard</button>
+          </div>
         </div>
 
         <div class="sidebar">
@@ -427,6 +431,9 @@ button {
   &:hover {
     filter: brightness(1.1);
     box-shadow: 0 0 0 1px rgba(43,45,80,.1),0 2px 5px 0 rgba(43,45,80,.1),0 3px 9px 0 rgba(43,45,80,.08),0 1px 1.5px 0 rgba(0,0,0,.08),0 1px 2px 0 rgba(0,0,0,.08);
+  }
+  &:active {
+    filter: brightness(0.9);
   }
 }
 
