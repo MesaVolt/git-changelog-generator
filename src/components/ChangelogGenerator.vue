@@ -59,7 +59,10 @@
           </div>
 
           <div class="card-footer">
-            <button type="button" @click="copy">Copy to clipboard</button>
+            <button
+              type="button" class="secondary"
+              @click="addAll" :disabled="!canAddAll"
+            >Add all</button>
           </div>
         </div>
 
@@ -272,6 +275,22 @@ export default Vue.extend({
 
       this.step = Step.BuildChangelog;
     },
+    addAll() {
+      if (this.newEntry.commits.length > 0) {
+        return;
+      }
+      for (const commit of this.commits) {
+        if (commit.added) {
+          continue;
+        }
+
+        this.entries.push({
+          text: commit.message,
+          hashes: [commit.hash],
+        });
+        commit.added = true;
+      }
+    },
     toggle(commit: Commit) {
       const commits = this.newEntry.commits;
 
@@ -383,6 +402,10 @@ export default Vue.extend({
       return converter.makeHtml(markdown);
     },
     samplePatch: () => samplePatch,
+    canAddAll(): boolean {
+      return this.newEntry.commits.length === 0
+        && this.commits.filter(commit => !commit.added).length > 0;
+    },
   }
 });
 </script>
@@ -434,6 +457,16 @@ button {
   }
   &:active {
     filter: brightness(0.9);
+  }
+
+  &.secondary {
+    background: gray;
+  }
+
+  &[disabled] {
+    pointer-events: none;
+    box-shadow: none;
+    opacity: 0.6;
   }
 }
 
