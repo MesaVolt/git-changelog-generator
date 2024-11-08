@@ -56,3 +56,23 @@ export const decodeUtf8String = (string: string): string => {
   }
   return string;
 }
+
+export const generateCommitLink = (repositoryUrl: string|null, commitHash: string): string => {
+  if (repositoryUrl === null) {
+    return commitHash;
+  }
+
+  // Remove trailing slash
+  repositoryUrl = repositoryUrl.replace(/\/$/, '');
+
+  let commitUrl = null;
+  if (repositoryUrl.includes('github')) {
+    commitUrl = `${repositoryUrl}/commit/${commitHash}`;
+  } else if (repositoryUrl.includes('gitlab')) {
+    commitUrl = `${repositoryUrl}/-/commit/${commitHash}`;
+  }
+
+  return commitUrl !== null
+    ? `[${commitHash}](${commitUrl})`
+    : commitHash;
+}

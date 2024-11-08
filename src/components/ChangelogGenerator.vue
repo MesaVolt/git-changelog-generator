@@ -105,7 +105,7 @@ import Vue from 'vue';
 import parse from 'parse-diff';
 import showdown from 'showdown';
 import {ChangelogEntry, Commit} from '@/types';
-import {decodeUtf8String, samplePatch, utf8Headers} from '@/helper/content';
+import {decodeUtf8String, generateCommitLink, samplePatch, utf8Headers} from '@/helper/content';
 import mimemessage from 'mimemessage';
 
 enum Step {
@@ -122,7 +122,7 @@ const converter = new showdown.Converter({
   extensions: [
     {
       type: 'lang',
-      regex: /\b([a-f0-9]{7})\b/g,
+      regex: /\s([a-f0-9]{7})\b/g,
       replace: '<span class="hash">$1</span>'
     },
     {
@@ -354,7 +354,10 @@ export default Vue.extend({
           let text = ` - ${entry.text}`;
 
           if (entry.hashes.length) {
-            text += ` ${entry.hashes.join(' ')}`;
+            // If repositoryUrl querystring param, use it to generate a pretty markdown link
+            const repositoryUrl = new URLSearchParams(window.location.search).get('repositoryUrl');
+
+            text += ` ${entry.hashes.map((hash: string) => generateCommitLink(repositoryUrl, hash)).join(' ')}`;
           }
 
           return text;

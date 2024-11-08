@@ -23,6 +23,8 @@ Generate fancy tech-oriented changelogs from [any git patch](https://github.com/
 
 **[Try it live](https://mesavolt.github.io/git-changelog-generator/)**
 
+> Tip: to get proper links to each commit, specify the repository URL as such: https://mesavolt.github.io/git-changelog-generator/?repositoryUrl=https://github.com/MesaVolt/git-changelog-generator
+
 ## Development
 
 ## Project setup
