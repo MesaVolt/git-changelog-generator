@@ -1,4 +1,4 @@
-import libmime from 'libmime';
+import {mimeWordDecode} from 'emailjs-mime-codec';
 
 export const samplePatch = `From 691ec486bc9f69669a00cf1920ea8a3b03974e78 Mon Sep 17 00:00:00 2001
 From: Harvey Specter <hspecter@pearson-hardman.com>
@@ -52,7 +52,7 @@ Content-Transfer-Encoding: 8bit`;
  */
 export const decodeUtf8String = (string: string): string => {
   if (string.indexOf('=?UTF-8?') === 0) {
-    string = libmime.decodeWords(string);
+    string = mimeWordDecode(string);
   }
   return string;
 }
