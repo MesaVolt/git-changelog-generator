@@ -10,7 +10,6 @@
   },
   "dependencies": {
     "core-js": "^3.6.5",
-    "emailjs-mime-codec": "^2.0.9",
     "mimemessage": "^1.0.5",
     "parse-diff": "^0.8.1",
     "sass": "^1.41.0",
