@@ -43,7 +43,7 @@
             >
               <input type="checkbox" :checked="newEntry.commits.includes(commit)" />
 
-              <div>
+              <div class="commit-info">
                 <p class="commit-title">{{ commit.message.split("\n")[0] }}</p>
                 <p v-if="commit.messageMore" style="opacity: 0.5; font-size: 0.8em" class="commit-more white-space-pre">{{ commit.messageMore }}</p>
               </div>
@@ -668,15 +668,21 @@ textarea {
     &:last-child {
       border-bottom: 0;
     }
-    .commit-title {
-      margin: 0;
-      font-weight: 500;
-    }
-    .commit-more {
-      margin: 0;
-      line-height: 1em;
+    .commit-info {
+      min-width: 0;
+      overflow: hidden;
+
+      .commit-title {
+        margin: 0;
+        font-weight: 500;
+      }
+      .commit-more {
+        margin: 0;
+        line-height: 1em;
+      }
     }
     .meta {
+      flex-shrink: 0;
       margin-left: auto;
       text-align: right;
       font-size: 0.9em;
